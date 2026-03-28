@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ZimBus: Production-Ready Bus Booking System for Zimbabwe
+
+ZimBus is a professional bus ticketing platform designed specifically for the unique operational requirements of the Zimbabwean transport market. It bridges the gap between digital convenience and real-world logistics (branch networks, manual payments, and offline manifest management).
+
+## Tech Stack
+- **Frontend/Backend:** Next.js 15 (App Router, Server Actions)
+- **Database:** PostgreSQL with [Kysely](https://kysely.dev/)
+- **Caching/Concurrency:** Redis (Distributed locking for seat selection)
+- **Validation:** Zod
+- **Styling:** Tailwind CSS + Framer Motion (Mobile-first)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Prerequisites
+- **Node.js 18+**
+- **PostgreSQL** instance
+- **Redis** server
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 2. Environment Setup
+Create a `.env` file in the root directory (refer to `.env.example`):
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/zimbus
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=your_jwt_key
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Database Initialization
+Run the provided `schema.sql` against your PostgreSQL database to create tables, enums, and indexes:
+```bash
+psql -d zimbus -f schema.sql
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Seed Testing Data
+Run the seeding script to populate operators, buses, and routes:
+```bash
+npx ts-node src/lib/seed.ts
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 5. Start Development
+```bash
+npm run dev
+```
 
-## Learn More
+## Key Features Implemented (Phase 1)
+- **Visual Seat Map:** Mobile-optimized 2x2 layout with real-time status fetching.
+- **Seat Locking:** 10-minute pessimistic locks via Redis to prevent double booking.
+- **Search Engine:** Filter by Zimbabwean cities (Harare, Bulawayo, etc.) and travel dates.
+- **Admin Manifests:** High-level dashboard for operators to track occupancy and schedules.
+- **Payment Abstraction:** Interfaces for EcoCash (USSD Push), InnBucks, and Manual Cash verification.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment Strategy
+1. **Frontend:** Deploy on Vercel for worldwide CDN and fast Edge rendering.
+2. **Backend Services:** Use Railway or Render for Node.js API and Worker processes.
+3. **Database:** Supabase or Amazon RDS (AF-South-1 Region for Zim/SADC low-latency).
+4. **Cache:** Upstash Redis (Serverless).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Contact & Credits
+ZimBus Project Team - 2024
