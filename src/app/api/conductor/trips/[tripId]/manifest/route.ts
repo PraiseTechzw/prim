@@ -7,9 +7,9 @@ import { db } from '../../../../../../lib/db';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { tripId: string } }
+  { params }: { params: Promise<{ tripId: string }> }
 ) {
-  const { tripId } = params;
+  const { tripId } = await params;
 
   try {
     const trip = await db

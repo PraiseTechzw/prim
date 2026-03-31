@@ -9,22 +9,29 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SeatSelectionPage() {
-  const { tripId } = useParams();
+  const params = useParams();
+  const tripId = params?.tripId as string;
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
   const [holding, setHolding] = useState(false);
 
   useEffect(() => {
     async function fetchSeats() {
+      if (!tripId) return;
+      setLoading(true);
+      setError(null);
+      
       try {
         const res = await fetch(`/api/trips/${tripId}/seats`);
-        if (!res.ok) throw new Error('Trip not found');
+        if (!res.ok) throw new Error('Trip not found or database error');
         const d = await res.json();
         setData(d);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -67,6 +74,15 @@ export default function SeatSelectionPage() {
      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <Loader2 className="w-10 h-10 text-indigo-500 animate-spin" />
      </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-center">
+       <div className="p-4 bg-rose-50 text-rose-700 rounded-3xl border border-rose-100 mb-6 flex items-center gap-3 font-bold">
+          <Info className="w-6 h-6" /> {error}
+       </div>
+       <button onClick={() => window.location.reload()} className="text-indigo-600 font-black">Try Refreshing</button>
+    </div>
   );
 
   return (
@@ -116,12 +132,13 @@ export default function SeatSelectionPage() {
                   const isLocked = seat.isLocked;
                   
                   return (
-                     <motion.div 
+                     <motion.button 
                         key={seat.id}
                         whileTap={!isLocked ? { scale: 0.9 } : {}}
                         onClick={() => toggleSeat(seat.id, isLocked)}
+                        disabled={isLocked}
                         className={`
-                           aspect-square rounded-2xl flex flex-col items-center justify-center text-[10px] font-black transition-all cursor-pointer relative
+                           aspect-square rounded-2xl flex flex-col items-center justify-center text-[10px] font-black transition-all cursor-pointer relative border-0
                            ${isLocked ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 
                              isSelected ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-900/10 scale-105' : 
                              'bg-slate-50 border border-slate-200 text-slate-800 hover:border-indigo-400 hover:bg-white'}
@@ -134,7 +151,7 @@ export default function SeatSelectionPage() {
                         {(seat.seat_identifier.endsWith('B')) && (
                            <div className="absolute -right-3 top-0 bottom-0 w-2 bg-transparent border-r-2 border-dotted border-slate-100" />
                         )}
-                     </motion.div>
+                     </motion.button>
                   );
                })}
             </div>

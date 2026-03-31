@@ -7,9 +7,9 @@ import { db } from '../../../../lib/db';
  */
 export async function GET(
   request: Request,
-  { params }: { params: { bookingId: string } }
+  { params }: { params: Promise<{ bookingId: string }> }
 ) {
-  const { bookingId } = params;
+  const { bookingId } = await params;
 
   try {
     const booking = await db
